@@ -6,6 +6,7 @@ import com.example.instagramclone.data.Event
 import com.example.instagramclone.data.UserData
 import com.google.firebase.auth.FirebaseAuth
 import com.google.firebase.firestore.FirebaseFirestore
+import com.google.firebase.firestore.ktx.toObject
 import com.google.firebase.storage.FirebaseStorage
 import dagger.hilt.android.lifecycle.HiltViewModel
 import javax.inject.Inject
@@ -23,6 +24,18 @@ class IgViewModel @Inject constructor(
     val inProgress = mutableStateOf(false)
     val userData = mutableStateOf<UserData?>(null)
     val popupNotification = mutableStateOf<Event<String>?>(null)
+
+    //When the system starts up and instantiate our view model, init block will check whether we have a user or not
+    init {
+//        auth.signOut()
+        //firebase authentication remembers if the user has signed in or not, which can be accessed by 'currentUser' attribute
+        val currentUser = auth.currentUser
+        signedIn.value = currentUser != null
+
+        currentUser?.uid?.let { uid ->
+            getUserData(uid)
+        }
+    }
 
     fun onSignup(username: String, email: String, pass: String) {
         inProgress.value = true
@@ -103,7 +116,19 @@ class IgViewModel @Inject constructor(
     }
 
     private fun getUserData(uid: String){
+        inProgress.value = true
+        db.collection(USERS).document(uid).get()
+            .addOnSuccessListener {
+                val user = it.toObject<UserData>()
 
+                userData.value = user
+                inProgress.value = false
+                //popupNotification.value = Event("User data retrieved successfully")
+            }
+            .addOnFailureListener { exc ->
+                handleException(exception = exc, customMessage = "Cannot retrieve user data")
+                inProgress.value = false
+            }
     }
 
     fun handleException(exception: Exception? = null, customMessage: String = ""){
