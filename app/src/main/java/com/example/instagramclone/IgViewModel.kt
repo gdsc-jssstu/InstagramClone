@@ -41,6 +41,7 @@ class IgViewModel @Inject constructor(
                             if(task.isSuccessful){
                                 signedIn.value = true
                                 //create profile
+                                createOrUpdateProfile(username = username)
                             }
                             else{
                                 handleException(exception = task.exception, customMessage = "Signup failed")
@@ -50,6 +51,59 @@ class IgViewModel @Inject constructor(
                 }
             }
             .addOnFailureListener {  }
+    }
+
+    private fun createOrUpdateProfile(
+        name: String? = null,
+        username: String? = null,
+        bio: String? = null,
+        imageUrl: String? = null
+        ){
+
+            val uid = auth.currentUser?.uid
+            val userData = UserData(
+                userId = uid,
+                name = name ?: userData.value?.name,
+                userName = username ?: userData.value?.userName,
+                bio = bio ?: userData.value?.bio,
+                imageUrl = imageUrl ?: userData.value?.bio,
+                following = userData.value?.following
+            )
+
+            uid?.let { uid ->
+                inProgress.value = true
+                db.collection(USERS).document(uid).get().addOnSuccessListener {
+
+                    //if the user profile already exists, then we should just update the old info with the new data
+                    if(it.exists())
+                    {
+                        it.reference.update(userData.toMap())
+                            .addOnSuccessListener {
+                                this.userData.value = userData
+                                inProgress.value = false
+                            }
+                            .addOnFailureListener {
+                                handleException(it, customMessage = "Cannot update user")
+                                inProgress.value = false
+                            }
+                    }
+                    else{
+                        //user doesn't exist, so create a new user profile
+                        db.collection(USERS).document(uid).set(userData)
+                        //after completing the creation of the user, we should retrieve the user data
+                        getUserData(uid)
+                        inProgress.value = false
+                    }
+                }
+                    .addOnFailureListener { exc ->
+                        handleException(exception = exc, customMessage = "Cannot create user")
+                        inProgress.value = false
+                    }
+            }
+    }
+
+    private fun getUserData(uid: String){
+
     }
 
     fun handleException(exception: Exception? = null, customMessage: String = ""){
