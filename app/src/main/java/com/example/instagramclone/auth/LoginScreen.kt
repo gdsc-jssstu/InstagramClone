@@ -24,11 +24,14 @@ import androidx.compose.ui.unit.sp
 import androidx.navigation.NavController
 import com.example.instagramclone.DestinationScreens
 import com.example.instagramclone.IgViewModel
+import com.example.instagramclone.main.CheckSignedIn
 import com.example.instagramclone.main.CommonProgressSpinner
 import com.example.instagramclone.main.navigateTo
 
 @Composable
 fun LoginScreen(navController: NavController, vm: IgViewModel) {
+
+    CheckSignedIn(vm = vm, navController = navController)
 
     //to dismiss keyboard from the screen
     val focus = LocalFocusManager.current

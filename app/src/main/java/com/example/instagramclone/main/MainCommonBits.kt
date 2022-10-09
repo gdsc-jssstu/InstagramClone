@@ -10,6 +10,8 @@ import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.material.CircularProgressIndicator
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.remember
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.alpha
@@ -53,5 +55,21 @@ fun navigateTo(navController: NavController, dest: DestinationScreens){
         // In other words we pop up to that screen but we don't launch a new screen but just use the existing one
         popUpTo(dest.route)
         launchSingleTop = true
+    }
+}
+
+@Composable
+fun CheckSignedIn(vm : IgViewModel, navController: NavController){
+    val alreadyLoggedIn = remember { mutableStateOf(false)}
+    val signedIn = vm.signedIn.value
+
+    if(signedIn && !alreadyLoggedIn.value) {
+        alreadyLoggedIn.value = true
+
+        //since we want to remove every screen in the back stack when we move to this Feed Screen we are using navigate() instead of the above navigateTo()
+        navController.navigate(DestinationScreens.Feed.route){
+            //this line removes all the screens from backstack and just leave the feed screen
+            popUpTo(0)
+        }
     }
 }
