@@ -15,6 +15,8 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.alpha
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.platform.LocalContext
+import androidx.navigation.NavController
+import com.example.instagramclone.DestinationScreens
 import com.example.instagramclone.IgViewModel
 
 @Composable
@@ -39,5 +41,17 @@ fun CommonProgressSpinner() {
         verticalAlignment = Alignment.CenterVertically
     ) {
         CircularProgressIndicator()
+    }
+}
+
+fun navigateTo(navController: NavController, dest: DestinationScreens){
+    navController.navigate(dest.route){
+
+        // the reason for having these parameters is that , we may have a user that kind of jumps back and forth between multiple screens
+        // and we don't want to open the same screen multiple times,
+        // so we just need to pop up the back stack to that particular screen and launch it a single time
+        // In other words we pop up to that screen but we don't launch a new screen but just use the existing one
+        popUpTo(dest.route)
+        launchSingleTop = true
     }
 }

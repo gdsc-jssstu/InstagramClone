@@ -23,8 +23,10 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.hilt.navigation.HiltViewModelFactory
 import androidx.navigation.NavController
+import com.example.instagramclone.DestinationScreens
 import com.example.instagramclone.IgViewModel
 import com.example.instagramclone.main.CommonProgressSpinner
+import com.example.instagramclone.main.navigateTo
 
 @Composable
 fun SignupScreen(navController: NavController, vm: IgViewModel) {
@@ -79,11 +81,11 @@ fun SignupScreen(navController: NavController, vm: IgViewModel) {
             )
 
             Button(onClick = {
-                             vm.onSignup(
-                                 usernameState.value.text,
-                                 emailState.value.text,
-                                 passState.value.text
-                             )
+                vm.onSignup(
+                    usernameState.value.text,
+                    emailState.value.text,
+                    passState.value.text
+                )
             }, modifier = Modifier.padding(8.dp)) {
                 Text(text = "SIGN UP")
             }
@@ -93,11 +95,12 @@ fun SignupScreen(navController: NavController, vm: IgViewModel) {
                 color = Color.Blue,
                 modifier = Modifier
                     .padding(8.dp)
-                    .clickable { })
+                    .clickable { navigateTo(navController, DestinationScreens.Login) }
+            )
         }
 
         val isLoading = vm.inProgress.value
-        if(isLoading){
+        if (isLoading) {
             CommonProgressSpinner()
         }
     }
