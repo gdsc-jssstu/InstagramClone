@@ -2,12 +2,12 @@ package com.example.instagramclone.main
 
 import android.app.Notification
 import android.widget.Toast
+import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
-import androidx.compose.foundation.layout.Arrangement
-import androidx.compose.foundation.layout.Row
-import androidx.compose.foundation.layout.fillMaxSize
-import androidx.compose.foundation.layout.fillMaxWidth
+import androidx.compose.foundation.layout.*
+import androidx.compose.foundation.shape.CircleShape
+import androidx.compose.material.Card
 import androidx.compose.material.CircularProgressIndicator
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.mutableStateOf
@@ -16,8 +16,15 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.alpha
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.graphics.ColorFilter
+import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.platform.LocalContext
+import androidx.compose.ui.res.painterResource
+import androidx.compose.ui.unit.dp
 import androidx.navigation.NavController
+import coil.annotation.ExperimentalCoilApi
+import coil.compose.ImagePainter
+import coil.compose.rememberImagePainter
 import com.example.instagramclone.DestinationScreens
 import com.example.instagramclone.IgViewModel
 
@@ -46,8 +53,8 @@ fun CommonProgressSpinner() {
     }
 }
 
-fun navigateTo(navController: NavController, dest: DestinationScreens){
-    navController.navigate(dest.route){
+fun navigateTo(navController: NavController, dest: DestinationScreens) {
+    navController.navigate(dest.route) {
 
         // the reason for having these parameters is that , we may have a user that kind of jumps back and forth between multiple screens
         // and we don't want to open the same screen multiple times,
@@ -59,17 +66,58 @@ fun navigateTo(navController: NavController, dest: DestinationScreens){
 }
 
 @Composable
-fun CheckSignedIn(vm : IgViewModel, navController: NavController){
-    val alreadyLoggedIn = remember { mutableStateOf(false)}
+fun CheckSignedIn(vm: IgViewModel, navController: NavController) {
+    val alreadyLoggedIn = remember { mutableStateOf(false) }
     val signedIn = vm.signedIn.value
 
-    if(signedIn && !alreadyLoggedIn.value) {
+    if (signedIn && !alreadyLoggedIn.value) {
         alreadyLoggedIn.value = true
 
         //since we want to remove every screen in the back stack when we move to this Feed Screen we are using navigate() instead of the above navigateTo()
-        navController.navigate(DestinationScreens.Feed.route){
+        navController.navigate(DestinationScreens.MyPosts.route) {
             //this line removes all the screens from backstack and just leave the feed screen
             popUpTo(0)
+        }
+    }
+}
+
+@OptIn(ExperimentalCoilApi::class)
+@Composable
+fun CommonImage(
+    data: String?,
+    modifier: Modifier = Modifier.wrapContentSize(),
+    contentScale: ContentScale = ContentScale.Crop,
+) {
+    val painter = rememberImagePainter(data = data)
+    Image(
+        painter = painter,
+        contentDescription = null,
+        modifier = modifier,
+        contentScale = contentScale
+    )
+
+    if (painter.state is ImagePainter.State.Loading) {
+        CommonProgressSpinner()
+    }
+}
+
+@Composable
+fun UserImageCard(
+    userImage: String?,
+    modifier: Modifier = Modifier
+        .padding(8.dp)
+        .size(44.dp)
+) {
+    Card(shape = CircleShape, modifier = modifier) {
+        if (userImage.isNullOrEmpty()) {
+            Image(
+                painter = painterResource(id = com.example.instagramclone.R.drawable.ic_person),
+                contentDescription = null,
+                colorFilter = ColorFilter.tint(Color.Gray)
+            )
+        }
+        else{
+            CommonImage(data = userImage)
         }
     }
 }
