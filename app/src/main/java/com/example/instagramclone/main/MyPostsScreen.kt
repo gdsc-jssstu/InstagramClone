@@ -1,5 +1,8 @@
 package com.example.instagramclone.main
 
+import android.net.Uri
+import androidx.activity.compose.rememberLauncherForActivityResult
+import androidx.activity.result.contract.ActivityResultContracts
 import androidx.compose.foundation.BorderStroke
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
@@ -26,6 +29,19 @@ import com.example.instagramclone.IgViewModel
 
 @Composable
 fun MyPostsScreen(navController: NavController, vm: IgViewModel) {
+
+    //so this is used to retrieve the image from the device and going to help us retrieve some images from the device and pass it on to our destination screen new post
+    val newPostImageLauncher = rememberLauncherForActivityResult(
+        contract = ActivityResultContracts.GetContent()
+    ){ uri ->
+        uri?.let {
+            val encoded = Uri.encode(it.toString())
+            val route = DestinationScreens.NewPost.createRoute(encoded)
+            navController.navigate(route)
+        }
+        //we are calling the onResult using trailing lambdas
+
+    }
     val userData = vm.userData.value
     val isLoading = vm.inProgress.value
 
@@ -33,7 +49,7 @@ fun MyPostsScreen(navController: NavController, vm: IgViewModel) {
         Column(modifier = Modifier.weight(1f)) {
             Row() {
                 ProfileImage(imageUrl = userData?.imageUrl) {
-
+                    newPostImageLauncher.launch("image/*")
                 }
                 Text(
                     text = "15\nPosts",
@@ -120,7 +136,8 @@ fun ProfileImage(imageUrl: String?, onClick: () -> Unit) {
             Image(
                 painter = painterResource(id = com.example.instagramclone.R.drawable.ic_add),
                 contentDescription = null,
-                modifier = Modifier.background(Color.Blue), colorFilter = ColorFilter.tint(Color.White)
+                modifier = Modifier.background(Color.Blue),
+                colorFilter = ColorFilter.tint(Color.White)
             )
         }
     }
