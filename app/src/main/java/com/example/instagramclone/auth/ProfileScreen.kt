@@ -1,10 +1,15 @@
 package com.example.instagramclone.auth
 
+import android.net.Uri
+import androidx.activity.compose.rememberLauncherForActivityResult
+import androidx.activity.result.contract.ActivityResultContracts
 import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.rememberScrollState
+import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.verticalScroll
+import androidx.compose.material.Card
 import androidx.compose.material.Text
 import androidx.compose.material.TextField
 import androidx.compose.material.TextFieldDefaults
@@ -21,11 +26,13 @@ import androidx.navigation.NavController
 import com.example.instagramclone.DestinationScreens
 import com.example.instagramclone.IgViewModel
 import com.example.instagramclone.main.CommonDivider
+import com.example.instagramclone.main.CommonImage
 import com.example.instagramclone.main.CommonProgressSpinner
 import com.example.instagramclone.main.navigateTo
 
 @Composable
 fun ProfileScreen(navController: NavController, vm: IgViewModel) {
+
     val isLoading = vm.inProgress.value
     if (isLoading) {
         CommonProgressSpinner()
@@ -64,6 +71,7 @@ fun ProfileContent(
     onLogout: () -> Unit,
 ) {
     val scrollState = rememberScrollState()
+    val imageUrl = vm.userData?.value?.imageUrl
 
     Column(
         modifier = Modifier
@@ -83,14 +91,7 @@ fun ProfileContent(
         CommonDivider()
 
         //User Image
-        Column(
-            modifier = Modifier
-                .height(200.dp)
-                .fillMaxWidth()
-                .background(Color.Gray)
-        ) {
-
-        }
+        ProfileImage(imageUrl = imageUrl, vm = vm)
 
         CommonDivider()
 
@@ -158,5 +159,38 @@ fun ProfileContent(
         ) {
             Text(text = "Logout", modifier = Modifier.clickable { onLogout.invoke() })
         }
+    }
+}
+
+@Composable
+fun ProfileImage(imageUrl: String?, vm: IgViewModel) {
+
+    //launcher is used to retrieve the image from the device
+    val launcher = rememberLauncherForActivityResult(contract = ActivityResultContracts.GetContent()){uri: Uri? ->
+        uri?.let { vm.uploadProfileImage(uri) }
+//        onResult functionality
+
+    }
+    //we are adding IntrinsicSize.Min because we want to have some height even when the image does not yet exist or when it's loading
+    Box(modifier = Modifier.height(IntrinsicSize.Min)) {
+        Column(
+            modifier = Modifier
+                .padding(8.dp)
+                .fillMaxWidth()
+                .clickable { launcher.launch("image/*") }, //we are retrieving the data of the type "image/*" from the device
+            horizontalAlignment = Alignment.CenterHorizontally,
+        
+        ) {
+            Card(shape = CircleShape, modifier = Modifier
+                .padding(8.dp)
+                .size(100.dp)) {
+                CommonImage(data = imageUrl)
+            }
+            
+            Text(text = "Change Profile picture")
+        }
+        val isLoading = vm.inProgress.value
+        if (isLoading)
+            CommonProgressSpinner()
     }
 }
