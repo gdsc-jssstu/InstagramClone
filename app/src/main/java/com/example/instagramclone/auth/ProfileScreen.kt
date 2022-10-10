@@ -52,7 +52,9 @@ fun ProfileScreen(navController: NavController, vm: IgViewModel) {
             onBioChange = { bio = it },
             onSave = { vm.updateProfileData(name, username, bio) },
             onBack = { navigateTo(navController, DestinationScreens.MyPosts) },
-            onLogout = { }
+            onLogout = { vm.onLogout()
+            navigateTo(navController, DestinationScreens.Login)
+            }
         )
     }
 }
