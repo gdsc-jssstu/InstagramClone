@@ -21,6 +21,7 @@ import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
 import androidx.navigation.NavController
+import com.example.instagramclone.DestinationScreens
 import com.example.instagramclone.IgViewModel
 
 @Composable
@@ -70,7 +71,7 @@ fun MyPostsScreen(navController: NavController, vm: IgViewModel) {
                 modifier = Modifier
                     .padding(8.dp)
                     .fillMaxWidth(),
-                onClick = { },
+                onClick = { navigateTo(navController, DestinationScreens.Profile) },
                 colors = ButtonDefaults.buttonColors(backgroundColor = Color.Transparent),
                 elevation = ButtonDefaults.elevation(
                     defaultElevation = 0.dp,
