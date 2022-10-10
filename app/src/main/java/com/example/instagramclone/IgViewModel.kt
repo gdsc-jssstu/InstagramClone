@@ -174,4 +174,8 @@ class IgViewModel @Inject constructor(
         val message = if (customMessage.isEmpty()) errorMessage else "$customMessage : $errorMessage"
         popupNotification.value = Event(message)
     }
+
+    fun updateProfileData(name: String, username: String, bio: String){
+        createOrUpdateProfile(name, username, bio)
+    }
 }
